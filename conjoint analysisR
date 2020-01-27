@@ -1,0 +1,22 @@
+library( conjoint)
+
+### R library for conjoint analysis
+conjoint1<- read.csv(“copy and paste the location of your file; mine has got 5 columns”, header=TRUE, sep= ”,”)
+
+###I am here calling a csv but if you have an excel file, you can read an xlxs file as long as you add one extra step which is write library(excel)
+survey <- c("NA", "extremely disagree", "disagree", "agree", "extremely agree")   
+#### this is based on a likert scake but if you have Y/N or multiple attributes or levels, it is going to be the same. you just have to write them.
+
+#### we now transform the data into a dataframe
+ survey.df<- data.frame(survey)
+ caModel(conjoint1[,1], conjoint1[2:5])
+ Conjoint(conjoint1[,1], conjoint[2:5], survey.df)
+ 
+ ####charts will help you understand the combinations and the utilities.
+ 
+ caTotalUtilities(contjoint1[,1], conjoint1[2:5])  
+
+####my file has 5 columns so you will have to change the numbers in the [] in function of your own dataset. the TotalUtilities can also help ou understand preference by user and characteristics
+ 
+ caSegmentation(conjoint1[,1], conjoint1[2:5], c*3)
+ ###clustering data in three groups this will work well even if you are working with ratings on social media. 
