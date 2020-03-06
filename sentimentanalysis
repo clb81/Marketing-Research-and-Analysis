@@ -1,0 +1,127 @@
+## Install packages. Remember that packages are nothing but pre-compiled algorithms that will allow you to do the analysis
+install.packages("twitteR", repos = "http://cran.us.r-project.org")
+install.packages("RCurl", repos = "http://cran.us.r-project.org")
+install.packages("httr", repos = "http://cran.us.r-project.org")
+install.packages("syuzhet", repos = "http://cran.us.r-project.org")
+
+#If you are using Rstudio, simply go to your packages panel and click on add package. 
+
+#We will now call the packages, meaning that we will tell R that we want to use the packages we have just installed in our machine
+
+library(twitteR)
+library(RCurl)
+library(httr)
+library(syuzhet)
+
+# we will also need to add two more packages that will allow us to work with the text and make a nice wordcloud
+
+library(tm)
+library(wordcloud)
+
+#notice that when calling Wordcloud you may be asked to load RColorBrewer. If this is the case, write: library(RColorBrewer)
+
+#You have already created your Twitter app so we will now copy and paste the details that will help you make R and Twitter connect to one another
+#those of you that are working with a .csv, please skip this part. Do the following: tweets<-read.csv("link", sep ="", head=TRUE) and move directly to line 45
+
+
+consumer_key = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Consumer key" 
+consumer_secret = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under  "Consumer secret"
+access_token = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Access token"
+access_secret ="ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Access secret" 
+
+#you have now set up the connection between Twitter and R/Rstudio. We will now need to finalise this connection and add one extra piece of code
+
+setup_twitter_oauth(consumer_key,consumer_secret,access_token, access_secret)
+
+# we now move to the next step, which is retrieving data from twitter. We can call this data mining, data scraping. I call it retrieval. it is nicer and less geek
+
+# we will first tell Twitter what language and how many tweets we want to retrieve. I am here using one of the campaigns I am following but you replace the hashtag that is betweet brackets with something relevant to your campaign
+
+tweets = searchTwitter("#DownSndrome", n = 100, lang = "en")
+
+#this step is asking the system to look for 100 random English tweets about Down Syndrome. This means that Twitter will give R access to 100 tweets. 
+#you will see the tweets appear in the console. Take some time to familiarise with the data and the columns, the rows and the information that is made available to you
+
+#we will now transform the dataset into a dataframe. If you want to know more about dataframes: https://www.tutorialspoint.com/r/r_data_frames.htm
+
+tweets.df <-twListToDF(tweets)
+
+#we will now clean the data in order to remove words and symbols that would confuse our work. We will use the gsub function. More about the use of gsub: http://www.datasciencemadesimple.com/sub-gsub-function-in-r/
+# we will use the tweets.df$text. the $ allows us to select one column only: in this case, we are selecting the column "text"
+
+tweets.df2 <-gsub("&amp", "", tweets.df$text) #we are removing the annoying ampersand and we are going to create a new file called tweets.df2 so we do not get confused. from now on, we will use tweets.df2
+tweets.df2 <- gsub("&amp", "", tweets.df2)
+tweets.df <- gsub("http.*","",tweets.df2)
+tweets.df2 <- gsub("https.*","",tweets.df2)
+tweets.df2 <- gsub("#.*","",tweets.df2) 
+tweets.df2 <- gsub("@.*","",tweets.df2)
+tweets.df2 <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", tweets.df2)
+tweets.df2 <-gsub("@\\w+", "", tweets.df2)
+tweets.df2<- gsub("[[:punct:]]", "", tweets.df2)
+tweets.df2 <- gsub("[[:digit:]]", "", tweets.df2)
+tweets.df2 <- gsub("http\\w+", "", tweets.df2)
+tweets.df2 <- gsub("[ \t]{2,}", "", tweets.df2)
+tweets.df2 <- gsub("^\\s+|\\s+$", "", tweets.df2)
+
+
+# we will now try to understand the in depth sentiment of these tweets. We will then start using the sentiment package. Syuzhet splits the tweets into different categories: anger, anticipation,disgust, fear, joy, sadness and trust, in addition to looking at the general positive vs negative sentiment
+
+emotions <- get_nrc_sentiment(tweets.df2) #we are applying the nrc dictionary
+emo_bar = colSums(emotions) # we are splitting the tweets into emotions
+emo_sum = data.frame(count=emo_bar, emotion=names(emo_bar))
+emo_sum$emotion = factor(emo_sum$emotion, levels=emo_sum$emotion[order(emo_sum$count, decreasing = TRUE)]) #we are preparing the tweets to be ordered from the most frequent to the least frequent emotion
+
+# Visualize and plot the emotions from NRC sentiments. in order to create a nice visualisation we will call the package plotly
+
+library(plotly)
+
+plot <- plot_ly(emo_sum, x=~emotion, y=~count, type="bar", color=~emotion) %>%
+  layout(xaxis=list(title=""), showlegend=FALSE,
+         title="Emotion Type for hashtag: #DownSyndrome")
+         
+api_create(p,filename="Sentimentanalysis")
+
+#we you now need to analyse the results.
+
+#EXTRA WORK FOR THOSE THAT ARE INTERESTED IN WORDFREQUENCY ANALYSIS AND VISUALISATIONS
+
+# Create comparison word cloud data
+
+wordcloud_tweet = c(
+  paste(tweets.df2[emotions$anger > 0], collapse=" "),
+  paste(tweets.df2[emotions$anticipation > 0], collapse=" "),
+  paste(tweets.df2[emotions$disgust > 0], collapse=" "),
+  paste(tweets.df2[emotions$fear > 0], collapse=" "),
+  paste(tweets.df2[emotions$joy > 0], collapse=" "),
+  paste(tweets.df2[emotions$sadness > 0], collapse=" "),
+  paste(tweets.df2[emotions$surprise > 0], collapse=" "),
+  paste(tweets.df2[emotions$trust > 0], collapse=" ")
+)
+
+# Now we create a corpus, or the actual set of tweets and words we want to visualise
+
+corpus = Corpus(VectorSource(wordcloud_tweet))
+
+# We will now need to remove punctuation, convert every word in lower case and remove all stopwords. we did this already but we certainly want to make 100% sure that the wordcloud be relevant to our analysis and insights.
+
+corpus = tm_map(corpus, tolower)
+corpus = tm_map(corpus, removePunctuation)
+corpus = tm_map(corpus, removeWords, c(stopwords("english")))
+corpus = tm_map(corpus, stemDocument)
+
+# create document term matrix
+
+tdm = TermDocumentMatrix(corpus)
+
+# convert as matrix
+
+tdm = as.matrix(tdm)
+tdmnew <- tdm[nchar(rownames(tdm)) < 11,]# column name binding. With this step we are ensuring that the wordcloud will cluster words and sentiment so to help you understand which words are most used in relation to, for example, "joy"
+
+colnames(tdm) = c('anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust')
+colnames(tdmnew) <- colnames(tdm)
+comparison.cloud(tdmnew, random.order=FALSE,
+                 colors = c("#00B2FF", "red", "#FF0099", "#6600CC", "green", "ora
+
+
+#Now try to check the results and compare the chart with the wordcloud. What is the first thing that emerges? What does this mean for your strategy?
