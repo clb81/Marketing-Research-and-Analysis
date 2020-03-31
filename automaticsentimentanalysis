@@ -1,0 +1,58 @@
+if(interactive()){
+  library(shiny)
+  library(shinycustomloader)
+  library(shinythemes)
+  library(SentimentAnalysis)
+  library(textclean)
+  
+  ui<-navbarPage(strong("Mavis Analytic"),theme=shinytheme("spacelab"),
+                 windowTitle="Mavis Analytic",fluid=TRUE,inverse=FALSE,
+                 tabPanel(strong("Opinion Miner"),
+                          sidebarLayout(
+                            sidebarPanel(width=3,
+                                         h4("Enter your texts in these fields"),br(),
+                                         actionButton("clear","Clear Fields"),br(),br(),
+                                         textAreaInput("text","Text Field 1",value="It is a beautiful day"),
+                                         textAreaInput("texts","Text Field 2",value="I am happy to be here"),
+                                         textAreaInput("word","Text Field 3",value="Let's have some fun"),
+                                         textAreaInput("words","Text Field 4",value="It has been a tough journey"),
+                                         textAreaInput("wordy","Text Field 5",value="I don't like clowns"),
+                                         actionButton("run","Run Analysis")
+                            ),mainPanel(h4("A table of the sentiment scores across four dictionaries"),withLoader(dataTableOutput("table"),loader="dnaspin")))),
+                 tabPanel(strong("Financial Ratios Calculator")),
+                 navbarMenu(strong("More"),
+                            tabPanel(strong("Graphs and Charts")),
+                            tabPanel(strong("Tables")))
+                 
+  )
+  server<-function(input,output,session){
+    observeEvent(input$clear,{
+      updateTextAreaInput(session,"text",value="")
+      updateTextAreaInput(session,"texts",value="")
+      updateTextAreaInput(session,"word",value="")
+      updateTextAreaInput(session,"words",value="")
+      updateTextAreaInput(session,"wordy",value="")
+    })
+   
+    Analyze<-reactive(
+      analyzeSentiment(
+        replace_symbol(
+          replace_number(
+            replace_ordinal(
+              doc<-c(input$text,input$texts,input$word,input$words,input$wordy))))))
+   isolate_Analyze <- isolate(Analyze())
+    
+    QDAP<-isolate_Analyze$SentimentQDAP
+    LoughranM<-isolate_Analyze$SentimentLM
+    Henry<-isolate_Analyze$SentimentHE
+    HarvardIV<-isolate_Analyze$SentimentGI
+    
+    output$table<-renderDataTable({
+      data.frame(
+        QDAP,LoughranM,Henry,HarvardIV)
+
+    })
+  }
+}
+
+shinyApp(ui=ui,server=server)
