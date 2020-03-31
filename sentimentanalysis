@@ -8,14 +8,14 @@ install.packages("syuzhet", repos = "http://cran.us.r-project.org")
 
 #We will now call the packages, meaning that we will tell R that we want to use the packages we have just installed in our machine
 
-library(twitteR)
-library(RCurl)
+library(twitteR) ##if you are using another R version and having problems calling twitteR use SentimentAnalysis. Install it with install.packages and then call it with library
+library(RCurl)   ## this may prompt you to upload bitops. if so, simply write install.packages("bitops") and then call it with library(bitops)
 library(httr)
 library(syuzhet)
 
 # we will also need to add two more packages that will allow us to work with the text and make a nice wordcloud
 
-library(tm)
+library(tm)   ## this one may prompt you to also install and call NLP. If so, please install.packages("NLP") and then call it with library(NLP)
 library(wordcloud)
 
 #notice that when calling Wordcloud you may be asked to load RColorBrewer. If this is the case, write: library(RColorBrewer)
@@ -24,8 +24,8 @@ library(wordcloud)
 #those of you that are working with a .csv, please skip this part. Do the following: tweets<-read.csv("link", sep ="", head=TRUE) and move directly to line 45
 
 
-consumer_key = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Consumer key" 
-consumer_secret = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under  "Consumer secret"
+api_key = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "API key" 
+api_secret = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under  "API secret"
 access_token = "ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Access token"
 access_secret ="ABCD12345690XXXXXXXXX" #this can be found in the Twitter App page under "Access secret" 
 
