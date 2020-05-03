@@ -1,0 +1,34 @@
+require(rtweet)
+require(quanteda)
+require(ggplot2)
+economic_abuse<-search_tweets("#economic abuse", n=18000, include_rts = FALSE)
+corpusea<- corpus(economic_abuse)
+ea_dfm<- dfm(economic_abuse, remove_punct=TRUE)
+stopwords(language = "en", source = "snowball", simplify = TRUE)
+
+economic_abuse %>%
+  ts_plot("3 hours") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(plot.title = ggplot2::element_text(face = "bold")) +
+  ggplot2::labs(
+    x = NULL, y = NULL,
+    title = "Frequency of #economicabuse Twitter statuses 26 Aprl-3 May",
+    subtitle = "Twitter stories",
+    caption = "\nSource: Data collected from Twitter's REST API via rtweet"
+  )
+
+tag_dfm<-dfm_select(ea_dfm)
+head(tag_dfm)
+topgat_fcm <- fcm_select(tag_fcm, pattern = toptag)
+head(tag_fcm)
+toptag<-names(topfeatures(tag_dfm,15))
+head(toptag)
+topgat_fcm<- fcm_select(tag_fcm,pattern=toptag)
+textplot_network(topgat_fcm, min_freq = 0.1, edge_alpha = 0.8, edge_size = 5)
+toks<- ea_dfm%>%
+  + tokens(remove_punct = TRUE) %>%
+  + tokens_remove(stopwords("english"), padding = FALSE)
+ fcmat <- fcm(toks, context = "window", tri = FALSE)
+ feat <- names(topfeatures(fcmat, 30))
+ fcm_select(fcmat, pattern = feat) %>%
+  +     textplot_network(min_freq = 0.5)
