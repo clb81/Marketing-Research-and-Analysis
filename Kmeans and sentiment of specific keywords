@@ -1,0 +1,34 @@
+library(janitor)
+library(lubridate)
+library(hms)
+library(tidyr)
+library(stringr)
+library(readr)
+library(forcats)
+library(RcppRoll)
+library(dplyr)
+library(tibble)
+library(bit64)
+library(exploratory)
+
+# Steps to produce the output
+exploratory::read_delim_file("Desktopdestination/Yourfile.csv" , ",", quote = "\"", skip = 0 , col_names = TRUE , na = c('','NA') , locale=readr::locale(encoding = "UTF-8", decimal_mark = ".", grouping_mark = "," ), trim_ws = TRUE , progress = FALSE) %>%
+  readr::type_convert() %>%
+  exploratory::clean_data_frame(Text) %>%
+  mutate(Date = dmy(Date), Text = str_clean(Text)) %>%
+  filter(!is_stopword(Text, lang = "english")) %>%
+  mutate(Text = str_to_lower(Text)) %>%
+  filter(!is_stopword(Title) & !is_stopword(Text, lang = "english")) %>%
+  mutate(Text_normalized = str_normalize(Text), row = str_sub(Text_normalized, "keywordstosearch"), Link_domain = url_domain(Link), Link_scheme = url_scheme(Link), Text_match = str_detect(Text, "word/s you want to search"), sentiment = str_sub(Text, ), Title = str_clean(Title), Title = str_to_lower(Title)) %>%
+  filter(!is_stopword(Title, lang = "english")) %>%
+  mutate(Text_sentiment = get_sentiment(as.character(Text))) %>%
+  filter(!is.na(Title)) %>%
+  mutate(Title = str_squish(Title), Title_sentiment = get_sentiment(as.character(Title))) %>%
+  do_tokenize(Text, token = "sentences") %>%
+  do_tfidf(document_id, token) %>%
+  mutate(token_matches = str_count(token, "")) %>%
+  do_tokenize(token, token = "words", drop = TRUE, output = "newcolumn") %>%
+  filter(!is_stopword(newcolumn, lang = "english")) %>%
+  build_kmeans(skv = c("newcolumn", "document_id")) %>%
+  mutate(newcolumn_sentiment = word_to_sentiment(newcolumn)) %>%
+  group_by(newcolumn)
