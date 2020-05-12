@@ -1,21 +1,25 @@
 require(rtweet)
 require(quanteda)
 require(ggplot2)
-economic_abuse<-search_tweets("#economic abuse", n=18000, include_rts = FALSE)
-corpusea<- corpus(economic_abuse)
-ea_dfm<- dfm(economic_abuse, remove_punct=TRUE)
+economic_abuse<-search_tweets("terms to search", n=18000, include_rts = FALSE)##please replace "terms to search with actual terms you want to search online!
+corpusea<- corpus(terms to search)
+ea_dfm<- dfm(terms to search remove_punct=TRUE)
 stopwords(language = "en", source = "snowball", simplify = TRUE)
 
-economic_abuse %>%
-  ts_plot("3 hours") +
+
+##checking frequency of posting (this is relevant only if you get a weekly (or bigger) dataset
+Terms to search %>%
+  ts_plot("here input the time such as weekly, 3 hours, one day etc..") + ##All that isin "" has to be replaced with actual time :)
   ggplot2::theme_minimal() +
   ggplot2::theme(plot.title = ggplot2::element_text(face = "bold")) +
   ggplot2::labs(
     x = NULL, y = NULL,
-    title = "Frequency of #economicabuse Twitter statuses 26 Aprl-3 May",
+    title = "Frequency of #somethingsomething Twitter statuses from day 1 to day 12",
     subtitle = "Twitter stories",
     caption = "\nSource: Data collected from Twitter's REST API via rtweet"
   )
+
+##getting a network of most used tags/keywords and hashtags ##the latter one is especially useful if you have searched keywords rather than hashtags or if the tweets present multiple hashtags attached tothe one you were researching!
 
 tag_dfm<-dfm_select(ea_dfm)
 head(tag_dfm)
@@ -32,3 +36,5 @@ toks<- ea_dfm%>%
  feat <- names(topfeatures(fcmat, 30))
  fcm_select(fcmat, pattern = feat) %>%
   +     textplot_network(min_freq = 0.5)
+  
+  ##the result should be a nice network. Happy deciphering!
