@@ -1,7 +1,7 @@
 require(rtweet)
 require(quanteda)
 require(ggplot2)
-economic_abuse<-search_tweets("terms to search", n=18000, include_rts = FALSE)##please replace "terms to search with actual terms you want to search online!
+tweets <-search_tweets("terms to search", n=18000, include_rts = FALSE)##please replace "terms to search with actual terms you want to search online!
 corpusea<- corpus(terms to search)
 ea_dfm<- dfm(terms to search remove_punct=TRUE)
 stopwords(language = "en", source = "snowball", simplify = TRUE)
