@@ -1,0 +1,48 @@
+library(rtweet)
+library(quanteda)
+library(lubridate)
+library(topicmodels)
+library(ggplot2)
+
+analysis<- search_tweets("#stayhomesavelives",n=40000,lang="en")
+
+corpusve<- corpus(analysis)
+tweets<- dfm(analysis$text,
+    remove_punct = TRUE, remove_url = TRUE, remove_symbols = TRUE,
+    remove = c('*.tt', '*.uk', '*.com', 'rt', '#*', '@*', 'http*', 'amp')) %>% 
+  dfm_remove(stopwords('en'))
+
+head(tweets)
+
+tag_dfm <- dfm_select(tweets)
+head(tag_dfm)
+tweets_fcm <-fcm(tag_dfm)
+toptag <- names(topfeatures(tag_dfm, 50))
+
+  
+tag_fcm<- fcm(tag_dfm)
+toptag<-names(topfeatures(tag_dfm,50))
+topgat_fcm<- fcm_select(tag_fcm,pattern=toptag)
+textplot_network(topgat_fcm, min_freq = 0.1, edge_alpha = 0.8, edge_size = 5)
+
+fcmat <- fcm(tweets, context = "window", tri = FALSE)
+feat <- names(topfeatures(fcmat, 30))
+fcm_select(fcmat, pattern = feat) %>%
+  +     textplot_network(min_freq = 0.5)
+
+analysis %>%
+  ts_plot("databyday") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(plot.title = ggplot2::element_text(face = "bold")) +
+  ggplot2::labs(
+    x = NULL, y = NULL,
+    title = "Frequency of #stayhomesafelives Twitter statuses 28 Apr-6 May",
+    subtitle = "#stayhomesavelives covid-19",
+    caption = "\nSource: Data collected from Twitter's REST API via rtweet"
+  )
+
+
+toks<- corpusve%>%
+  + tokens(remove_punct = TRUE) %>%
+  + tokens_remove(stopwords("english"), padding = FALSE)
+
