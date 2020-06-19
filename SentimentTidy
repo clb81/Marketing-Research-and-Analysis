@@ -1,0 +1,93 @@
+library(tidyverse)
+library(tidyquant)
+library(rtweet)
+library(ggplot2)
+library(dplyr)
+library(SnowballC)
+library(tidytext)
+
+boris<-search_tweets2("#boris", n=250000, include_rts=FALSE, retryonratelimit=TRUE)
+nicola<-search_tweets2<("Nicola Sturgeon", n=250000, include_rts=FALSE, retryonratelimit=TRUE)
+
+##followers distribution
+
+boris %>%
+  ggplot(aes(x = log2(boris$followers_count))) +
+  geom_density(color = palette_light()[1], fill = palette_green()[1], alpha = 0.8) +
+  theme_tq() +
+  labs(x = "relevant followers",
+       y = "density")
+users_data(boris)
+ts_plot(boris)
+
+###language used in tweets
+
+boris.df %>%
+  count(lang) %>%
+  droplevels() %>%
+ ggplot(aes(x = reorder(lang, desc(n)), y = n)) +
+ geom_bar(stat = "identity", color = palette_light()[1], fill = palette_light()[1], alpha = 0.8) +
+theme_tq() +
+theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+labs("language used")
+
+##distribution of tweets
+
+ts_plot(boris)
+
+##sentiment of tweets
+
+
+
+##remove stop words and https and urls
+
+
+boris_select<-boris%>%select(screen_name,text)
+boris_select_text<- gsub("http\\S+", boris_select)
+boris_stem<- boris_select%>%
+  select(text)%>%
+  unnest_tokens(word,text)
+clean_boris<- boris_stem%>%
+  anti_join(stop_words)
+
+## visualise unique words
+
+clean_boris%>%
+  count(word, sort = TRUE)%>%
+  top_n(15)%>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x=word, y=n))+
+  geom_col()+
+  xlab(NULL)+
+  coord_flip()+
+  theme_classic()+
+  labs("Most used unique words in #boris")
+
+
+## visualise ngams
+tidy_descr_ngrams <- boris_select %>%
+unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
+  filter(!grepl("\\.|http", bigram)) %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+## sentiment with Bing lexicon
+
+boris_sentiment<- clean_boris%>%
+  inner_join(get_sentiment ("bing"))%>%
+  count(word, sentiment, sort=TRUE)%>%
+  ungroup
+
+##visulise the sentiment for boris
+boris_sentiment%>%
+  group_by(sentiment)%>%
+top_n(15)%>%
+  ungroup()%>%
+  mutate(word = reorder(word,n))%>%
+  ggplot(aes(word, n, fill= sentiment))+
+  geom_col(show.legend = FALSE)+
+  facet_wrap(~sentiment, scales = "free_y")+
+  labs("Twitter Sentiment #boris 19062020")+
+  coord_flip()+theme_bw()
+  
