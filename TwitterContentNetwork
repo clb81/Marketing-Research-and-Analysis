@@ -8,7 +8,7 @@ ea_dfm<- dfm(tweets, stopwords(language = "en", source = "snowball", simplify = 
 
 ##checking frequency of posting (this is relevant only if you get a weekly (or bigger) dataset
 Terms to search %>%
-  ts_plot("here input the time such as weekly, 3 hours, one day etc..") + ##All that isin "" has to be replaced with actual time :)
+  ts.plot("here input the time such as weekly, 3 hours, one day etc..") + ##All that isin "" has to be replaced with actual time :)
   ggplot2::theme_minimal() +
   ggplot2::theme(plot.title = ggplot2::element_text(face = "bold")) +
   ggplot2::labs(
