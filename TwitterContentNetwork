@@ -22,7 +22,7 @@ Terms to search %>%
 
 tag_dfm<-dfm_select(ea_dfm)
 head(tag_dfm)
-topgat_fcm <- fcm_select(tag_dfm, pattern = toptag)
+topgat_fcm <- fcm_select(tag_fcm, pattern = toptag)
 head(tag_fcm)
 toptag<-names(topfeatures(tag_dfm,15))
 head(toptag)
