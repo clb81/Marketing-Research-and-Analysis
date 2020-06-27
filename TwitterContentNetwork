@@ -3,8 +3,7 @@ require(quanteda)
 require(ggplot2)
 tweets <-search_tweets("terms to search", n=18000, include_rts = FALSE)##please replace "terms to search with actual terms you want to search online!
 corpusea<- corpus(tweets)
-ea_dfm<- dfm(tweets, remove_punct=TRUE)
-stopwords(language = "en", source = "snowball", simplify = TRUE)
+ea_dfm<- dfm(tweets, stopwords(language = "en", source = "snowball", simplify = TRUE)
 
 
 ##checking frequency of posting (this is relevant only if you get a weekly (or bigger) dataset
