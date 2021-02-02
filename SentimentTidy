@@ -1,15 +1,21 @@
-library(tidyverse)
-library(tidyquant)
-library(rtweet)
-library(ggplot2)
-library(dplyr)
-library(SnowballC)
-library(tidytext)
+## first thing we do in R is: we 'call' packages. We therefore give instructions to the machine. These instructions are prefigured with packages that others write. We are not computer scientists: we do not write code!
+## in order to 'call' packages we use the LIBRARY function. For this exercise we use 7 different packages. Some are for text analysis, others are for visualisations
+## remember to exclude everything I write using these symbols: ##. These are instructions and explanations. Nothing you need!
 
-boris<-search_tweets2("#boris", n=250000, include_rts=FALSE, retryonratelimit=TRUE)
-nicola<-search_tweets2<("Nicola Sturgeon", n=250000, include_rts=FALSE, retryonratelimit=TRUE)
+library(tidyverse)  ##text
+library(tidyquant)  ## text
+library(rtweet)     ##mining twitter
+library(ggplot2)    ##visualisations
+library(dplyr)      #a bit of everything :)
+library(SnowballC)   #visualisations
+library(tidytext)    #text
 
-##followers distribution
+boris<-search_tweets2("#boris", n=250000, include_rts=FALSE, retryonratelimit=TRUE)   ## in this line I have given a name to what I am looking for. My data is going to be called "boris". I give instructions to the machine using the arrow. I then use rtweet to tell the machine what information to mine for me.
+nicola<-search_tweets2<("Nicola Sturgeon", n=250000, include_rts=FALSE, retryonratelimit=TRUE)  ## I do the same for Nicola Sturgeon
+
+## remember to keep the file names simple. Do not write Boris Johnson Tweets. Keep it simple! 
+
+##followers distribution: here I want to see main followers of my data which is boris. I would then do the same for my data nicola. I use ggplot.
 
 boris %>%
   ggplot(aes(x = log2(boris$followers_count))) +
@@ -20,7 +26,7 @@ boris %>%
 users_data(boris)
 ts_plot(boris)
 
-###language used in tweets
+###language used in tweets: here I am asking tidyverse to help me understand which language is mainly used in tweets.
 
 boris.df %>%
   count(lang) %>%
@@ -35,11 +41,13 @@ labs("language used")
 
 ts_plot(boris)
 
-##sentiment of tweets
+##sentiment of tweets: I use tidytext to understand the sentiment of tweets. Remember that there are other packages but this is the quickest method. We will also use WEKA to detect sarcasm but not now!
 
 
 
-##remove stop words and https and urls
+##remove stop words and https and urls because obviously I would have too many of them. stopwords are, for example the, a, one, an, http, https://
+## you can remove numbers and anything else you think has to be removed. Check quanteda for more info and training data.
+## we also ask the machine to stem words. this means that if there is children, child and childish, we only keep the root or child- this is obviously problematic in other languages but not in english.
 
 
 boris_select<-boris%>%select(screen_name,text)
@@ -50,7 +58,7 @@ boris_stem<- boris_select%>%
 clean_boris<- boris_stem%>%
   anti_join(stop_words)
 
-## visualise unique words
+## visualise unique words: I am using here a mix between quanteda and tidytex. I am basically asking the machine to cluster tweets based on key terms. This is important for topic modeling (another exercise)
 
 clean_boris%>%
   count(word, sort = TRUE)%>%
@@ -64,7 +72,7 @@ clean_boris%>%
   labs("Most used unique words in #boris")
 
 
-## visualise ngams
+## visualise ngams: what term is used the most with, for example boris? ngram allows you to select the most used keywords and how they appear in the text. this is important because if your brand is mentioned mostly in conjunction with _rubbish, you really need to act!
 tidy_descr_ngrams <- boris_select %>%
 unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
   filter(!grepl("\\.|http", bigram)) %>%
@@ -72,14 +80,14 @@ unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
   filter(!word1 %in% stop_words$word) %>%
   filter(!word2 %in% stop_words$word)
 
-## sentiment with Bing lexicon
+## sentiment with Bing lexicon. We use Bing cause it is built in the packages we re using but other packages use other dictionaries. More exercises later.
 
 boris_sentiment<- clean_boris%>%
   inner_join(get_sentiment ("bing"))%>%
   count(word, sentiment, sort=TRUE)%>%
   ungroup
 
-##visulise the sentiment for boris
+##visulise the sentiment for boris: and now visualise! Save the svg file. not the pdf. It will look better in a dashboard
 boris_sentiment%>%
   group_by(sentiment)%>%
 top_n(15)%>%
