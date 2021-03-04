@@ -11,7 +11,7 @@ library(SnowballC)   #visualisations
 library(tidytext)    #text
 
 boris<-search_tweets2("#boris", n=250000, include_rts=FALSE, retryonratelimit=TRUE)   ## in this line I have given a name to what I am looking for. My data is going to be called "boris". I give instructions to the machine using the arrow. I then use rtweet to tell the machine what information to mine for me.
-nicola<-search_tweets2<("Nicola Sturgeon", n=250000, include_rts=FALSE, retryonratelimit=TRUE)  ## I do the same for Nicola Sturgeon
+nicola<-search_tweets2<("#nicola", n=250000, include_rts=FALSE, retryonratelimit=TRUE)  ## I do the same for Nicola Sturgeon
 
 ## remember to keep the file names simple. Do not write Boris Johnson Tweets. Keep it simple! 
 
@@ -26,6 +26,8 @@ boris %>%
 users_data(boris)
 ts_plot(boris)
 
+##Do the same with NS tweets. Just copy and paste the code but remember to change the dataframe (which is nothing but the table of tweets you have just downloaded!)
+
 ###language used in tweets: here I am asking tidyverse to help me understand which language is mainly used in tweets.
 
 boris%>%
@@ -39,7 +41,7 @@ labs("language used")
 
 ##distribution of tweets
 
-ts_plot(boris)
+ts_plot(boris)  ##if you have a lot of tweets for one day only, do the following instead: ts_plot(boris, by="hours") OR ts_plot(boris, by="mins"). 
 
 ##sentiment of tweets: I use tidytext to understand the sentiment of tweets. Remember that there are other packages but this is the quickest method. We will also use WEKA to detect sarcasm but not now!
 
