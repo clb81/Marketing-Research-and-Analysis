@@ -28,7 +28,7 @@ ts_plot(boris)
 
 ###language used in tweets: here I am asking tidyverse to help me understand which language is mainly used in tweets.
 
-boris.df %>%
+boris%>%
   count(lang) %>%
   droplevels() %>%
  ggplot(aes(x = reorder(lang, desc(n)), y = n)) +
@@ -83,7 +83,7 @@ unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
 ## sentiment with Bing lexicon. We use Bing cause it is built in the packages we re using but other packages use other dictionaries. More exercises later.
 
 boris_sentiment<- clean_boris%>%
-  inner_join(get_sentiment ("bing"))%>%
+  inner_join(get_sentiments ("bing"))%>%
   count(word, sentiment, sort=TRUE)%>%
   ungroup
 
