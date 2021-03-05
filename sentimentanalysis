@@ -62,6 +62,7 @@ tweets.df2 <- gsub("[[:digit:]]", "", tweets.df2)
 tweets.df2 <- gsub("http\\w+", "", tweets.df2)
 tweets.df2 <- gsub("[ \t]{2,}", "", tweets.df2)
 tweets.df2 <- gsub("^\\s+|\\s+$", "", tweets.df2)
+tweets.df2 <- gsub("â€™", "", tweets.df2)
 
 
 # we will now try to understand the in depth sentiment of these tweets. We will then start using the sentiment package. Syuzhet splits the tweets into different categories: anger, anticipation,disgust, fear, joy, sadness and trust, in addition to looking at the general positive vs negative sentiment
