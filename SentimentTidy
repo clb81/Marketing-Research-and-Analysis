@@ -23,8 +23,7 @@ boris %>%
   theme_tq() +
   labs(x = "relevant followers",
        y = "density")
-users_data(boris)
-ts_plot(boris)
+
 
 ##Do the same with NS tweets. Just copy and paste the code but remember to change the dataframe (which is nothing but the table of tweets you have just downloaded!)
 
