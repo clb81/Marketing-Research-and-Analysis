@@ -79,7 +79,7 @@ clean_boris%>%
 
 ## visualise ngams: what term is used the most with, for example boris? ngram allows you to select the most used keywords and how they appear in the text. this is important because if your brand is mentioned mostly in conjunction with _rubbish, you really need to act!
 tidy_descr_ngrams <- boris_select %>%
-unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
+unnest_tokens(bigram, token = "ngrams", n = 2) %>%
   filter(!grepl("\\.|http", bigram)) %>%
   separate(bigram, c("word1", "word2"), sep = " ") %>%
   filter(!word1 %in% stop_words$word) %>%
