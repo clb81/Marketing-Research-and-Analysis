@@ -53,7 +53,8 @@ ts_plot(boris)  ##if you have a lot of tweets for one day only, do the following
 
 boris_select<-boris%>%select(screen_name,text)
 boris_select_text<- gsub("http\\S+", "", boris_select)
-boris_stem<- boris_select%>%
+boris_select_text <-gsub("t.co", "", boris_select)        ##Challenge: try to add other terms you'd like to remove using the gsub function.
+boris_stem <- boris_select%>%
   select(text)%>%
   unnest_tokens(word,text)
   
