@@ -56,6 +56,9 @@ boris_select_text<- gsub("http\\S+", "", boris_select)
 boris_stem<- boris_select%>%
   select(text)%>%
   unnest_tokens(word,text)
+  
+ ## next i stem the words. for example, if I have child, Children and childish, I will only retain the root (child-). It loses a bit of complexity but you can alwaysgo back to the data and revert this. We will see this in Exploratory too where it is much easier.
+
 clean_boris<- boris_stem%>%
   anti_join(stop_words)
 
